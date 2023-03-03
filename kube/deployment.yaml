@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bucket-webhook
+  labels:
+    app: bucket-webhook
+spec:
+  selector:
+    matchLabels:
+      app: bucket-webhook
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bucket-webhook
+    spec:
+      containers:
+        - name: bucket-webhook
+          image: rconway/fastapi:bucket
+          imagePullPolicy: Always
