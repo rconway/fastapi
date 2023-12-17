@@ -1,17 +1,17 @@
-# 
-FROM python:3.10
+FROM python:slim
 
-# 
-WORKDIR /code
+SHELL [ "bash", "-c" ]
 
-# 
-COPY ./requirements.txt /code/requirements.txt
+WORKDIR /app
 
-# 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# venv
+COPY requirements.txt run ./
+RUN ./run createVenvNoCache \
+  && rm requirements.txt
 
-# 
-COPY ./app /code/app
+# App
+COPY ./app .
 
-# 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000"]
+ENV APP_ROOT /app
+
+CMD [ "./run" ]

@@ -10,4 +10,4 @@ onExit() {
 }
 trap onExit EXIT
 
-docker run --rm -it -p 8000:8000 $(docker build -q .)
+curl -s -d @request-data.json -H 'Content-Type: application/json' 127.0.0.1:8000 | jq

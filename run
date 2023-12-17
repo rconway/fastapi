@@ -10,7 +10,64 @@ onExit() {
 }
 trap onExit EXIT
 
-cd app
-uvicorn --port 9000 main:app --reload
-# uvicorn --port 9000 main:app --workers 4
-# gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:9000
+APP_ROOT_DEFAULT="./app"
+APP_ROOT="${APP_ROOT:-${APP_ROOT_DEFAULT}}"
+APP_HOST="${APP_HOST:-0.0.0.0}"
+APP_PORT="${APP_PORT:-8000}"
+
+if [ "${APP_ROOT}" = "${APP_ROOT_DEFAULT}" ]; then
+  APP_EXTRA_ARGS="--reload"
+fi
+
+createVenv() {
+  extra_args="$@"
+  if [ ! -d "${ORIG_DIR}/venv" ]; then
+    echo "Creating venv at ${ORIG_DIR}/venv"
+    python -m venv "${ORIG_DIR}/venv"
+    source "${ORIG_DIR}/venv/bin/activate"
+    pip install --disable-pip-version-check ${extra_args} -U -r "${ORIG_DIR}/requirements.txt"
+    deactivate
+  else
+    echo "Using existing venv at ${ORIG_DIR}/venv"
+  fi
+}
+
+createVenvNoCache() {
+  createVenv --no-cache-dir
+}
+
+activateVenv() {
+  createVenv
+  source "${ORIG_DIR}/venv/bin/activate"
+}
+
+runApp() {
+  cd "${APP_ROOT}"
+  echo "Running app on port ${APP_PORT} from directory ${PWD}"
+
+  activateVenv
+
+  uvicorn --host "${APP_HOST}" --port "${APP_PORT}" main:app ${APP_EXTRA_ARGS}
+  # uvicorn --port 8000 main:app --workers 4
+  # gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+}
+
+main() {
+  cmd="${1:-runApp}"
+  case "$cmd" in
+    "createVenv")
+      createVenv
+      ;;
+    "createVenvNoCache")
+      createVenvNoCache
+      ;;
+    "runApp")
+      runApp "$@"
+      ;;
+    *)
+      echo "ERROR - command missing or not recognised"
+      ;;
+  esac
+}
+
+main "$@"
