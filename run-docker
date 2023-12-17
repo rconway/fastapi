@@ -10,4 +10,6 @@ onExit() {
 }
 trap onExit EXIT
 
-docker run --rm -it -p 8000:8000 $(docker build -q .)
+docker buildx build .
+
+docker run --rm -it --name fastapi -p 8000:8000 $(docker buildx build -q .)
