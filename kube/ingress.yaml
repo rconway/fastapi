@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bucket-webhook
+  annotations:
+    # Strip the prefix before passing to the app service
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # This forces addition of a training '/' to the prefix,
+    # which ensures that the relative paths in the react app
+    # are with respect to the proper base url.
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/bucket-webhook)$ $1/ redirect;
+    # No need for TLS redirect
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 192-168-49-2.nip.io
+      http:
+        paths:
+          - path: /bucket-webhook(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: bucket-webhook
+                port:
+                  name: http
