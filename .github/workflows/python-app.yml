@@ -4,6 +4,8 @@
 name: Richard Experimenting
 
 on:
+  # via github UI
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
