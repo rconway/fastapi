@@ -12,6 +12,6 @@ RUN ./run createVenvNoCache \
 # App
 COPY ./app .
 
-ENV APP_ROOT /app
+ENV APP_ROOT=/app
 
 CMD [ "./run" ]

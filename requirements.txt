@@ -1,2 +1,5 @@
 fastapi
+requests
+setuptools
 uvicorn[standard]
+wheel
